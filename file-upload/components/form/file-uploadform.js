@@ -1,5 +1,6 @@
 import React from "react"
 import { useFormik } from "formik"
+import classes from "./formStyle.module.css"
 
 const SignupForm = () => {
   // Pass the useFormik() hook initial form values and a submit function that will
@@ -9,6 +10,7 @@ const SignupForm = () => {
     initialValues: {
       title: "",
     },
+
     onSubmit: async (values) => {
       console.log("values", values)
 
@@ -31,6 +33,12 @@ const SignupForm = () => {
         formData.append(`files.multi`, values.multiFile[i])
       }
 
+      //for upload page
+      const uploadData = new FormData()
+      uploadData.append("files", values.singleFile)
+
+      //update collection
+
       const updateArticle = await fetch(
         "http://localhost:1337/api/articles/2",
         {
@@ -40,18 +48,27 @@ const SignupForm = () => {
         }
       )
       const updateData = await updateArticle.json()
-      console.log("updateArticle", updateData)
+      console.log("updateArticleRes", updateData)
 
-      //   // simple create new collection with JSON
-      //   const createArticle = await fetch("http://localhost:1337/api/articles", {
-      //     method: "POST",
-      //     body: formData,
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //   })
-      //   const createRes = await createArticle.json()
-      //   console.log(createRes)
+      // simple create new collection with JSON
+
+      const createArticle = await fetch("http://localhost:1337/api/articles", {
+        method: "POST",
+        body: formData,
+        headers: {},
+      })
+      const createRes = await createArticle.json()
+      console.log("createArticleRes", createRes)
+
+      //upload file to uploads
+
+      const uploadFile = await fetch("http://localhost:1337/api/upload", {
+        method: "POST",
+        body: uploadData,
+        headers: {},
+      })
+      const uploadRes = await uploadFile.json()
+      console.log("uploadRes", uploadRes)
     },
   })
 
@@ -70,36 +87,55 @@ const SignupForm = () => {
   }
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <label htmlFor="title">Title</label>
-      <input
-        id="title"
-        name="title"
-        type="text"
-        onChange={formik.handleChange}
-        value={formik.values.title}
-      />
-
-      <label htmlFor="email">single-file-upload</label>
-      <input
-        id="file"
-        name="file"
-        type="file"
-        onChange={onSingleFileChange}
-        value={formik.values.email}
-      />
-
-      <label htmlFor="email">multi-file-upload</label>
-      <input
-        id="file"
-        name="multi-file"
-        multiple
-        type="file"
-        onChange={onMultiFileChange}
-        value={formik.values.email}
-      />
-
-      <button type="submit">Submit</button>
+    <form
+      onSubmit={formik.handleSubmit}
+      className={{
+        display: "flex",
+      }}
+    >
+      <div>
+        <label htmlFor="title" className={classes.labelStyle}>
+          Title
+        </label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          onChange={formik.handleChange}
+          value={formik.values.title}
+          className={classes.inputStyle}
+        />
+      </div>
+      <div>
+        <label htmlFor="email" className={classes.labelStyle}>
+          single-file-upload
+        </label>
+        <input
+          id="file"
+          name="file"
+          type="file"
+          onChange={onSingleFileChange}
+          value={formik.values.email}
+          className={classes.inputStyle}
+        />
+      </div>
+      <div>
+        <label htmlFor="email" className={classes.labelStyle}>
+          multi-file-upload
+        </label>
+        <input
+          id="file"
+          name="multi-file"
+          multiple
+          type="file"
+          onChange={onMultiFileChange}
+          value={formik.values.email}
+          className={classes.inputStyle}
+        />
+      </div>
+      <button type="submit" className={classes.btnStyle}>
+        Submit
+      </button>
     </form>
   )
 }
